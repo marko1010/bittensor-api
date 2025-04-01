@@ -91,3 +91,7 @@ Run the test suite:
 ```bash
 docker compose --profile test up test
 ```
+
+## 🎥 Video Walkthrough
+
+[Google Drive Link](https://drive.google.com/file/d/1Ef3qFTZ-DoXv0F8-mQDcxT1jJTnt3mYl/view)
