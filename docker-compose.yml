@@ -1,0 +1,67 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - WALLET_PATH=/app/wallets
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - redis
+      - mongodb
+    volumes:
+      - ~/.bittensor/wallets:/app/wallets
+    env_file:
+      - .env
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  test:
+    profiles:
+      - test
+    build: .
+    command: sh -c "PYTHONPATH=/app pytest tests/"
+    environment:
+      - WALLET_PATH=/app/wallets
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - redis
+      - mongodb
+    volumes:
+      - ~/.bittensor/wallets:/app/wallets
+    env_file:
+      - .env
+
+  celery_worker:
+    build: .
+    command: celery -A app.tasks.celery worker --loglevel=info
+    environment:
+      - WALLET_PATH=/app/wallets
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - redis
+      - mongodb
+      - api
+    volumes:
+      - ~/.bittensor/wallets:/app/wallets
+    env_file:
+      - .env
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  mongodb:
+    image: mongo:5
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    logging:
+      driver: "none" 
+
+volumes:
+  redis_data:
+  mongodb_data: 
